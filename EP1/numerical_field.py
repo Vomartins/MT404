@@ -3,22 +3,25 @@ import matplotlib.pyplot as plt
 from scipy import linalg
 from scipy.spatial import ConvexHull, convex_hull_plot_2d
 
+def Soules():
+    return np.array([[0.1348,0.1231,0.1952,0.3586,0.8944],
+              [0.2697,0.2462,0.3904,0.7171,-0.4472],
+              [0.4045,0.3693,0.5855,-0.5976,0],
+              [0.5394,0.4924,-0.6831,0,0],
+              [0.6742,-0.7385,0,0,0]]) #Soules Matrix
 
 def algorithm(A, theta):
     for t in theta:
         Ah = (1/2)*(A*np.exp(complex(0,-t))+np.conjugate(A).T*np.exp(complex(0,t)))
         l, v = np.linalg.eig(Ah)
-        #print(l)
         k = np.argmax(l)
-        #print(k)
         p = np.dot(np.conjugate(v[:,k]),np.dot(A,v[:,k]))
         x_W.append(p.real)
         y_W.append(p.imag)
-        #print('\n')
     return x_W, y_W
 
 
-A =np.random.random((10, 10))
+A = Soules()
 epsilon = 0.00001
 print(np.any(np.dot(A,A.T) - np.dot(A.T,A))<=epsilon)
 eigvalues, eigvectors = np.linalg.eig(A)
