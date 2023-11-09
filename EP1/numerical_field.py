@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy import linalg
-from scipy.spatial import ConvexHull, convex_hull_plot_2d
+import scipy as sp
+from scipy.spatial import ConvexHull
 
 def Soules():
     return np.array([[0.1348,0.1231,0.1952,0.3586,0.8944],
@@ -10,7 +10,7 @@ def Soules():
               [0.5394,0.4924,-0.6831,0,0],
               [0.6742,-0.7385,0,0,0]]) #Soules Matrix
 
-def algorithm(A, theta):
+def num_field(A, theta):
     eigvalmax = []
     x_W = []
     y_W = []
@@ -34,19 +34,34 @@ def outer_approx(autoval, theta):
     return xq_W, yq_W
 
 
-A = np.random.random((100, 100))
+#A = sp.linalg.leslie([10.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0])
+A = sp.linalg.toeplitz([1, 1, 0, 0, 0, 0, 0, 0, 0, 0],[1, 1, 1 ,1 , 0, 0, 0, 0, 0, 0])
+#A = np.random.random((10,10))
+#A = np.array([[1,1,0],[0,1,1],[1,0,1]])
+
+print(A)
 
 eigvalues, eigvectors = np.linalg.eig(A)
+unique, counts = np.unique(eigvalues, return_counts=True)
+eig_multiplication = dict(zip(unique, counts))
+print(eig_multiplication)
 x_eig = [eigvalues[k].real for k in range(len(eigvalues))]
 y_eig = [eigvalues[k].imag for k in range(len(eigvalues))]
 
-epsilon = 0.00001
+epsilon = 10e-4
 IsItNormal = np.any(np.dot(A,A.T) - np.dot(A.T,A))<=epsilon
-print(IsItNormal)
+print("A is normal? "+str(IsItNormal))
 if IsItNormal == True:
     eigval_min = np.min(eigvalues)
     eigval_max = np.max(eigvalues)
+    points = np.vstack((x_eig,y_eig)).T
+    hull = ConvexHull(points)
+
     plt.figure(figsize=(8,5))
+    plt.title('Domínio Numérico - Matriz Normal',size=18)
+
+    for simplex in hull.simplices:
+        plt.plot(points[simplex, 0], points[simplex, 1], 'k-')
 
     plt.scatter(x_eig,y_eig,c='r',marker="o",label='Eigenvalues')
     plt.legend(loc='best',prop={'size': 12})
@@ -55,27 +70,26 @@ if IsItNormal == True:
 
     plt.show()
 else :
-    theta = np.linspace(0, 2*np.pi, 100)
+    theta = np.linspace(0, 2*np.pi, 1000)
 
-    x_W, y_W, eigvalmax = algorithm(A,theta)
+    x_W, y_W, eigvalmax = num_field(A,theta)
     xq_W, yq_W = outer_approx(eigvalmax,theta)
 
     points = np.vstack((x_W,y_W)).T
     outer_points = np.vstack((xq_W,yq_W)).T
     hull = ConvexHull(points)
     outer_hull = ConvexHull(outer_points)
-    print((hull.volume)/outer_hull.volume)
 
     plt.figure(figsize=(8,5))
-    plt.title('Numerical Field',size=18)
-
-    for simplex in hull.simplices:
-        plt.plot(points[simplex, 0], points[simplex, 1], 'k-')
+    plt.title('Domínio Numérico - Matriz de Toeplitz',size=18)
 
     for simplex in outer_hull.simplices:
         plt.plot(outer_points[simplex, 0], outer_points[simplex, 1], 'b-')
 
-    plt.scatter(x_eig,y_eig,c='r',marker="o",label='Eigenvalues')
+    for simplex in hull.simplices:
+        plt.plot(points[simplex, 0], points[simplex, 1], 'k-')
+
+    plt.scatter(x_eig,y_eig,c='r',marker="o",label='Autovalores')
     plt.legend(loc='best',prop={'size': 12})
     plt.grid(True)
     plt.tight_layout()
