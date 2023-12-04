@@ -35,8 +35,9 @@ def outer_approx(autoval, theta):
 
 
 #A = sp.linalg.leslie([10.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0])
-A = sp.linalg.toeplitz([1, 1, 0, 0, 0, 0, 0, 0, 0, 0],[1, 1, 1 ,1 , 0, 0, 0, 0, 0, 0])
-#A = np.random.random((10,10))
+#A = sp.linalg.toeplitz([1, 1, 0, 0, 0, 0, 0, 0, 0, 0],[1, 1, 1 ,1 , 0, 0, 0, 0, 0, 0])
+A = np.random.random((10,10))
+#A = np.array([[1,1,0,0],[0,1,1,1],[1,0,1,0],[1,0,0,1]])
 #A = np.array([[1,1,0],[0,1,1],[1,0,1]])
 
 print(A)
@@ -63,7 +64,7 @@ if IsItNormal == True:
     for simplex in hull.simplices:
         plt.plot(points[simplex, 0], points[simplex, 1], 'k-')
 
-    plt.scatter(x_eig,y_eig,c='r',marker="o",label='Eigenvalues')
+    plt.scatter(x_eig,y_eig,c='r',marker="o",label='Autovalores')
     plt.legend(loc='best',prop={'size': 12})
     plt.grid(True)
     plt.tight_layout()
@@ -81,7 +82,7 @@ else :
     outer_hull = ConvexHull(outer_points)
 
     plt.figure(figsize=(8,5))
-    plt.title('Domínio Numérico - Matriz de Toeplitz',size=18)
+    plt.title('Domínio Numérico - Matriz Aleatória',size=18)
 
     for simplex in outer_hull.simplices:
         plt.plot(outer_points[simplex, 0], outer_points[simplex, 1], 'b-')
